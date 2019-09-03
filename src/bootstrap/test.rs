@@ -708,7 +708,7 @@ impl Step for RustdocJSNotStd {
                 target: self.target,
                 mode: "js-doc-test",
                 suite: "rustdoc-js",
-                path: None,
+                path: Some("src/test/rustdoc-js"),
                 compare_mode: None,
             });
         } else {
@@ -1087,6 +1087,13 @@ impl Step for Compiletest {
         cmd.arg("--host").arg(&*compiler.host);
         cmd.arg("--llvm-filecheck")
             .arg(builder.llvm_filecheck(builder.config.build));
+
+        if mode == "js-doc-test" {
+            // For js-doc-test, a test will remain ignored if the JS file
+            // is modified but the corresponding Rust source is not.
+            // By passing the --ignored flag we force them to still run.
+            cmd.arg("--ignored");
+        }
 
         if builder.config.cmd.bless() {
             cmd.arg("--bless");
